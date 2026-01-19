@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+echo "Updating requirements..."
+bazel run //:reqs.update
+
+echo "Updating Python manifest..."
+bazel run //:gazelle_python_manifest.update
+
+echo "Running Gazelle..."
+bazel run //:gazelle
+
+echo "Dependencies updated!"
