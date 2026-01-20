@@ -34,7 +34,7 @@ bazel test //...
 1. Add your dependency to `requirements.in`:
    ```
    numpy==2.4.1
-   requests>=2.28.0
+   rich>=13.0.0
    ```
 
 2. Install dependencies:
@@ -44,7 +44,7 @@ bazel test //...
 
 3. Import your dependency in source code:
    ```python
-   import requests
+   import rich
    ```
 
 4. Update BUILD files:

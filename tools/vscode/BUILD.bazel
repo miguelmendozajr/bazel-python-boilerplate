@@ -1,24 +1,19 @@
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 
+
 py_binary(
-    name = "main",
-    srcs = ["main.py"],
+    name = "vscode_import_generator",
+    srcs = ["vscode_import_generator.py"],
+    data = ["//:requirements"],
     visibility = ["//:__subpackages__"],
-    deps = [
-        "@pip//numpy",
-        "@pip//rich",
-    ],
 )
 
+
 py_library(
-    name = "package",
+    name = "vscode",
     srcs = [
         "__init__.py",
-        "main.py",
+        "vscode_import_generator.py",
     ],
     visibility = ["//:__subpackages__"],
-    deps = [
-        "@pip//numpy",
-        "@pip//rich",
-    ],
 )
