@@ -18,7 +18,7 @@ brew install bazelisk
 ### Running the project
 
 ```bash
-bazel run src/app:main
+bazel run src/package:main
 ```
 
 ### Testing the project

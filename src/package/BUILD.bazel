@@ -8,7 +8,7 @@ py_binary(
 )
 
 py_library(
-    name = "app",
+    name = "package",
     srcs = [
         "__init__.py",
         "main.py",

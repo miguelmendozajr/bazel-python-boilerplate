@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from src.app.main import sum
+from src.package.main import sum
 
 class TestSumFunction(unittest.TestCase):
     def test_sum_basic_arrays(self):
@@ -37,6 +37,3 @@ class TestSumFunction(unittest.TestCase):
         result = sum(arr1, arr2)
         expected = 165
         self.assertEqual(result, expected)
-
-if __name__ == '__main__':
-    unittest.main()

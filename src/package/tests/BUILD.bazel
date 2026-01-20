@@ -1,7 +1,7 @@
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
 py_library(
-    name = "app",
+    name = "tests",
     srcs = ["__init__.py"],
     visibility = ["//:__subpackages__"],
 )
@@ -10,7 +10,7 @@ py_test(
     name = "main_test",
     srcs = ["main_test.py"],
     deps = [
-        "//src/app",
+        "//src/package",
         "@pip//numpy",
     ],
 )
