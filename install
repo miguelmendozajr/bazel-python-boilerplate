@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Installing Python dependencies..."
+bazel run //:reqs.update
+
+echo "Updating Python manifest..."
+bazel run //:gazelle_python_manifest.update
+
+echo "Python dependencies installed!"

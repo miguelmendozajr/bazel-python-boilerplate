@@ -31,18 +31,23 @@ bazel test //...
 
 ### Adding Dependencies
 
-1. Import your dependency to source code:
-    ```
-    import requests
-    ```
-
-2. Add your dependency to `requirements.in`:
+1. Add your dependency to `requirements.in`:
    ```
    numpy==2.4.1
    requests>=2.28.0
    ```
 
-3. Update dependencies:
+2. Install dependencies:
+   ```bash
+   ./install
+   ```
+
+3. Import your dependency in source code:
+   ```python
+   import requests
+   ```
+
+4. Update BUILD files:
    ```bash
    ./update
    ```

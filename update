@@ -1,13 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
-echo "Updating requirements..."
-bazel run //:reqs.update
-
-echo "Updating Python manifest..."
-bazel run //:gazelle_python_manifest.update
-
-echo "Running Gazelle..."
+echo "Running Gazelle to update BUILD files..."
 bazel run //:gazelle
 
-echo "Dependencies updated!"
+echo "BUILD files updated!"
