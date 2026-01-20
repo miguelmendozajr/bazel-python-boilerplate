@@ -1,5 +1,0 @@
-{
-    "python.analysis.extraPaths": [
-        "./bazel-bazel-python-boilerplate/external/rules_python++pip+pip_311_flask/site-packages"
-    ]
-}
