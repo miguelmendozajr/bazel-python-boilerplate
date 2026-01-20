@@ -21,6 +21,14 @@ brew install bazelisk
 bazel run src/app:main
 ```
 
+### Testing the project
+
+Run all tests (test files should have the `_test.py` suffix):
+
+```bash
+bazel test //...
+```
+
 ### Adding Dependencies
 
 1. Import your dependency to source code:
