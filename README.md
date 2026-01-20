@@ -18,7 +18,7 @@ brew install bazelisk
 ### Running the project
 
 ```bash
-bazel run //src/server:main
+bazel run src/app:main
 ```
 
 ### Adding Dependencies
@@ -30,7 +30,7 @@ bazel run //src/server:main
 
 2. Add your dependency to `requirements.in`:
    ```
-   flask==2.3.3
+   numpy==2.4.1
    requests>=2.28.0
    ```
 

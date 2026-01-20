@@ -5,13 +5,7 @@
 
 manifest:
   modules_mapping:
-    blinker: blinker
-    click: click
-    flask: flask
-    itsdangerous: itsdangerous
-    jinja2: jinja2
-    markupsafe: markupsafe
-    werkzeug: werkzeug
+    numpy: numpy
   pip_repository:
     name: pip
-integrity: 742ca7b72aa2a1e3573fc0a6ac7b8ba54e9757ea75feb239cd445c32fbedf411
+integrity: 7a9613c4c1f33613027a842db317825c71e7121c03d2a580e3e0bcec43c4c403

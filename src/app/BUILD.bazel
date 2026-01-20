@@ -4,15 +4,15 @@ py_binary(
     name = "main",
     srcs = ["main.py"],
     visibility = ["//:__subpackages__"],
-    deps = ["@pip//flask"],
+    deps = ["@pip//numpy"],
 )
 
 py_library(
-    name = "server",
+    name = "app",
     srcs = [
         "__init__.py",
         "main.py",
     ],
     visibility = ["//:__subpackages__"],
-    deps = ["@pip//flask"],
+    deps = ["@pip//numpy"],
 )
