@@ -1,3 +1,4 @@
+{% raw %}
 #!/usr/bin/env bash
 
 set -e
@@ -54,6 +55,8 @@ extract_package_names() {
     done < "$requirements_file"
 }
 
+{% endraw %}
+
 generate_vscode_paths() {
     local packages=("$@")
     local repo_name=$(basename "$(pwd)")
@@ -67,6 +70,7 @@ generate_vscode_paths() {
     done
 }
 
+{% raw %}
 update_vscode_settings() {
     local extra_paths=("$@")
     mkdir -p .vscode
@@ -117,3 +121,4 @@ main() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi
+{% endraw %}

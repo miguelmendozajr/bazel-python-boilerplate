@@ -1,5 +1,6 @@
 {
-    "project_name": "project",
+    "project_name": "bazel-python-boilerplate",
+    "project_slug": "{{ cookiecutter.project_name.replace('-', '_') }}",
     "python_version": "3.11",
     "python_version_short": "{{ cookiecutter.python_version.replace('.', '') }}"
 }

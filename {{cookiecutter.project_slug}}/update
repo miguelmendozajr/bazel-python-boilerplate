@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Running Gazelle to update BUILD files..."
+bazel run //:gazelle
+
+echo "BUILD files updated!"

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Installing Dependencies..."
+bazel run //:reqs.update
+
+echo "Updating Manifest..."
+bazel run //:gazelle_python_manifest.update
+
+echo "Python dependencies installed!"
+
+echo "Building target..."
+bazel build //...
+
+echo "Updating VS Code settings..."
+./intellisense
+
+echo "Setup complete!"

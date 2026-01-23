@@ -1,0 +1,15 @@
+# GENERATED FILE - DO NOT EDIT!
+#
+# To update this file, run:
+#   bazel run //:gazelle_python_manifest.update
+
+manifest:
+  modules_mapping:
+    markdown_it: markdown_it_py
+    mdurl: mdurl
+    numpy: numpy
+    pygments: pygments
+    rich: rich
+  pip_repository:
+    name: pip
+integrity: 0456e8584600ee529fe2ed441a8691210e182447504ddbaf39573849a172da9f
