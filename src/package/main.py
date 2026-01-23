@@ -21,6 +21,6 @@ def main():
     
     console.print(table)
     console.print(f"[bold green]Total sum: {result}[/bold green]")
-
+    
 if __name__ == "__main__":
     main()

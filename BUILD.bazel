@@ -48,10 +48,3 @@ gazelle(
     name = "gazelle",
     gazelle = "@rules_python_gazelle_plugin//python:gazelle_binary",
 )
-
-
-filegroup(
-    name = "requirements",
-    srcs = ["requirements.in", "requirements.txt", ".vscode/settings.json"],
-    visibility = ["//visibility:public"],
-)

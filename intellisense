@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+set -e
+
+VSCODE_SETTINGS_FILE=".vscode/settings.json"
+REQUIREMENTS_FILE="requirements.in"
+
+get_bazel_platform() {
+    local system=$(uname -s | tr '[:upper:]' '[:lower:]')
+    local machine=$(uname -m | tr '[:upper:]' '[:lower:]')
+    local arch
+    
+    case "$machine" in
+        x86_64|amd64)
+            arch="amd64"
+            ;;
+        arm64|aarch64)
+            arch="arm64"
+            ;;
+        *)
+            arch="amd64"
+            ;;
+    esac
+    
+    case "$system" in
+        darwin)
+            echo "darwin_${arch}"
+            ;;
+        linux)
+            echo "linux_${arch}"
+            ;;
+        mingw*|msys*|cygwin*)
+            echo "windows_${arch}"
+            ;;
+        *)
+            echo "linux_${arch}"
+            ;;
+    esac
+}
+
+
+extract_package_names() {
+    local requirements_file="$1"
+
+    [[ -f "$requirements_file" ]] || return
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="$(echo "$line" | xargs)"
+
+        [[ -z "$line" || "$line" =~ ^# ]] && continue
+
+        package_name="$(echo "$line" | sed 's/[<>=!].*//' | xargs)"
+
+        [[ -n "$package_name" ]] && echo "$package_name"
+    done < "$requirements_file"
+}
+
+generate_vscode_paths() {
+    local packages=("$@")
+    local repo_name="$(basename "$PWD")"
+    local bazel_platform=$(get_bazel_platform)
+    
+    for package in "${packages[@]}"; do
+        local normalized_package="${package//-/_}"
+        local path="./bazel-${repo_name}/bazel-out/${bazel_platform}-fastbuild/bin/src/package/main.runfiles/rules_python++pip+pip_{{cookiecutter.python_version_short}}_${normalized_package}/site-packages"
+        echo "$path"
+    done
+}
+
+update_vscode_settings() {
+    local extra_paths=("$@")
+    mkdir -p .vscode    
+    local paths_json=""
+    for i in "${!extra_paths[@]}"; do
+        if [[ $i -eq 0 ]]; then
+            paths_json="\"${extra_paths[$i]}\""
+        else
+            paths_json="${paths_json},
+        \"${extra_paths[$i]}\""
+        fi
+    done 
+    cat > "$VSCODE_SETTINGS_FILE" << EOF
+{
+    "python.analysis.extraPaths": [
+        ${paths_json}
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.pythonProjects": []
+}
+EOF
+    
+    echo "Updated $VSCODE_SETTINGS_FILE with ${#extra_paths[@]} package paths"
+}
+
+main() {
+    echo "Generating VSCode import paths..."
+    
+    local packages=($(extract_package_names "$REQUIREMENTS_FILE"))
+    
+    if [[ ${#packages[@]} -eq 0 ]]; then
+        echo "No packages found in $REQUIREMENTS_FILE"
+        return
+    fi
+    
+    echo "Found ${#packages[@]} packages: ${packages[*]}"
+    
+    local extra_paths=($(generate_vscode_paths "${packages[@]}"))
+    
+    update_vscode_settings "${extra_paths[@]}"    
+    echo "VSCode import generator completed successfully!"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

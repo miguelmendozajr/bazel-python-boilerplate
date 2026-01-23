@@ -3,7 +3,7 @@ bazel_dep(name = "rules_python", version = "1.1.0")
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
     hub_name = "pip",
-    python_version = "3.11",
+    python_version = "{{cookiecutter.python_version}}",
     requirements_lock = "//:requirements.txt",
 )
 use_repo(pip, "pip")
