@@ -1,6 +1,6 @@
-{% raw %}
-
 #!/usr/bin/env bash
+
+{% raw %}
 
 set -e
 
