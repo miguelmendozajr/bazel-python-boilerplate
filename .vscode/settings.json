@@ -1,8 +1,0 @@
-{
-    "python.analysis.extraPaths": [
-        "./bazel-bazel-python-boilerplate/bazel-out/darwin_arm64-fastbuild/bin/src/package/main.runfiles/rules_python++pip+pip_311_numpy/site-packages",
-        "./bazel-bazel-python-boilerplate/bazel-out/darwin_arm64-fastbuild/bin/src/package/main.runfiles/rules_python++pip+pip_311_rich/site-packages"
-    ],
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": []
-}
