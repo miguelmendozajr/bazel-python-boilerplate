@@ -1,3 +1,5 @@
+{% raw %}
+
 #!/usr/bin/env bash
 
 set -e
@@ -157,3 +159,4 @@ else
 fi
 
 echo "Setup complete!"
+{% endraw %}
