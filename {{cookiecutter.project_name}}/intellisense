@@ -1,10 +1,11 @@
 {% raw %}
+
 #!/usr/bin/env bash
 
 set -e
 
 VSCODE_SETTINGS_FILE=".vscode/settings.json"
-REQUIREMENTS_FILE="requirements.in"
+REQUIREMENTS_FILE="requirements.txt"
 
 get_bazel_platform() {
     local system=$(uname -s | tr '[:upper:]' '[:lower:]')
@@ -39,38 +40,65 @@ get_bazel_platform() {
     esac
 }
 
+generate_python_interpreter_path() {
+    local repo_name=$(basename "$(pwd)")
+    local bazel_platform=$(get_bazel_platform)
+    
+    local base_path="./bazel-$repo_name/bazel-out/$bazel_platform-fastbuild/bin/src/package/main.runfiles"
+    local python_pattern="$base_path/rules_python++python+python_*/bin/python3"
+    
+    local python_path=$(compgen -G "$python_pattern" | head -n 1)
+    
+    if [[ -n "$python_path" && -x "$python_path" ]]; then
+        echo "$python_path"
+    else
+        python_path=$(find "$base_path" -path "*/rules_python*python*/bin/python3" -type f -executable 2>/dev/null | head -n 1)
+        
+        if [[ -n "$python_path" ]]; then
+            echo "$python_path"
+        else
+            echo "Error: Could not find Python interpreter" >&2
+            return 1
+        fi
+    fi
+}
+
+
 extract_package_names() {
     local requirements_file="$1"
 
     [[ -f "$requirements_file" ]] || return
 
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        line="$(echo "$line" | xargs)"
-
-        [[ -z "$line" || "$line" =~ ^# ]] && continue
-
-        package_name="$(echo "$line" | sed 's/[<>=!].*//' | xargs)"
-
-        [[ -n "$package_name" ]] && echo "$package_name"
-    done < "$requirements_file"
+    grep -E '^[a-zA-Z0-9_-]+' "$requirements_file" | \
+    grep -v '^\s*#' | \
+    sed 's/==.*//' | \
+    sed 's/[<>=!~\[].*//' | \
+    sed 's/\s*\\.*//' | \
+    xargs -n1
 }
-
-{% endraw %}
 
 generate_vscode_paths() {
     local packages=("$@")
     local repo_name=$(basename "$(pwd)")
     local bazel_platform=$(get_bazel_platform)
-    local python_version_short="{{ cookiecutter.python_version_short }}"
 
     for package in "${packages[@]}"; do
         local normalized_package="${package//-/_}"
-        local path="./bazel-$repo_name/bazel-out/$bazel_platform-fastbuild/bin/src/package/main.runfiles/rules_python++pip+pip_${python_version_short}_${normalized_package}/site-packages"
-        echo "$path"
+        local base_path="./bazel-$repo_name/bazel-out/$bazel_platform-fastbuild/bin/src/package/main.runfiles"
+        local package_pattern="$base_path/rules_python++pip+pip_*_${normalized_package}/site-packages"
+        
+        local path=$(compgen -G "$package_pattern" | head -n 1)
+        
+        if [[ -z "$path" ]]; then
+            path=$(find "$base_path" -path "*/rules_python++pip+pip_*_${normalized_package}/site-packages" -type d 2>/dev/null | head -n 1)
+        fi
+        
+        if [[ -n "$path" ]]; then
+            echo "$path"
+        fi
     done
 }
 
-{% raw %}
 update_vscode_settings() {
     local extra_paths=("$@")
     mkdir -p .vscode
@@ -84,20 +112,26 @@ update_vscode_settings() {
         \"${extra_paths[$i]}\""
         fi
     done
+    
+    local python_path=$(generate_python_interpreter_path)
+
+    if [[ -L "$python_path" ]]; then
+        python_path=$(readlink -f "$python_path" 2>/dev/null || realpath "$python_path" 2>/dev/null || echo "$python_path")
+    fi
 
     cat > "$VSCODE_SETTINGS_FILE" << EOF
 {
+    "python.defaultInterpreterPath": "$python_path",
     "python.analysis.extraPaths": [
         $paths_json
-    ],
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": []
+    ]
 }
 EOF
 
     local num_paths="${#extra_paths[@]}"
     echo "Updated $VSCODE_SETTINGS_FILE with $num_paths package paths"
 }
+
 
 main() {
     echo "Generating VSCode import paths..."
@@ -121,4 +155,5 @@ main() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi
+
 {% endraw %}
