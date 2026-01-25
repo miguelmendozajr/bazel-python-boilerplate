@@ -2,4 +2,158 @@
 
 set -e
 
-./install
+echo "Installing Dependencies..."
+bazel run //:reqs.update
+
+echo "Updating Manifest..."
+bazel run //:gazelle_python_manifest.update
+
+echo "Python dependencies installed!"
+
+echo "Building target..."
+bazel build //...
+
+echo "Updating VS Code settings..."
+
+VSCODE_SETTINGS_FILE=".vscode/settings.json"
+REQUIREMENTS_FILE="requirements.txt"
+
+get_bazel_platform() {
+    local system=$(uname -s | tr '[:upper:]' '[:lower:]')
+    local machine=$(uname -m | tr '[:upper:]' '[:lower:]')
+    local arch
+
+    case "$machine" in
+        x86_64|amd64)
+            arch="amd64"
+            ;;
+        arm64|aarch64)
+            arch="arm64"
+            ;;
+        *)
+            arch="amd64"
+            ;;
+    esac
+
+    case "$system" in
+        darwin)
+            echo "darwin_$arch"
+            ;;
+        linux)
+            echo "linux_$arch"
+            ;;
+        mingw*|msys*|cygwin*)
+            echo "windows_$arch"
+            ;;
+        *)
+            echo "linux_$arch"
+            ;;
+    esac
+}
+
+generate_python_interpreter_path() {
+    local repo_name=$(basename "$(pwd)")
+    local bazel_platform=$(get_bazel_platform)
+    
+    local base_path="./bazel-$repo_name/bazel-out/$bazel_platform-fastbuild/bin/src/package/main.runfiles"
+    local python_pattern="$base_path/rules_python++python+python_*/bin/python3"
+    
+    local python_path=$(compgen -G "$python_pattern" | head -n 1)
+    
+    if [[ -n "$python_path" && -x "$python_path" ]]; then
+        echo "$python_path"
+    else
+        python_path=$(find "$base_path" -path "*/rules_python*python*/bin/python3" -type f -executable 2>/dev/null | head -n 1)
+        
+        if [[ -n "$python_path" ]]; then
+            echo "$python_path"
+        else
+            echo "Error: Could not find Python interpreter" >&2
+            return 1
+        fi
+    fi
+}
+
+extract_package_names() {
+    local requirements_file="$1"
+
+    [[ -f "$requirements_file" ]] || return
+
+    grep -E '^[a-zA-Z0-9_-]+' "$requirements_file" | \
+    grep -v '^\s*#' | \
+    sed 's/==.*//' | \
+    sed 's/[<>=!~\[].*//' | \
+    sed 's/\s*\\.*//' | \
+    xargs -n1
+}
+
+generate_vscode_paths() {
+    local packages=("$@")
+    local repo_name=$(basename "$(pwd)")
+    local bazel_platform=$(get_bazel_platform)
+
+    for package in "${packages[@]}"; do
+        local normalized_package="${package//-/_}"
+        local base_path="./bazel-$repo_name/bazel-out/$bazel_platform-fastbuild/bin/src/package/main.runfiles"
+        local package_pattern="$base_path/rules_python++pip+pip_*_${normalized_package}/site-packages"
+        
+        local path=$(compgen -G "$package_pattern" | head -n 1)
+        
+        if [[ -z "$path" ]]; then
+            path=$(find "$base_path" -path "*/rules_python++pip+pip_*_${normalized_package}/site-packages" -type d 2>/dev/null | head -n 1)
+        fi
+        
+        if [[ -n "$path" ]]; then
+            echo "$path"
+        fi
+    done
+}
+
+update_vscode_settings() {
+    local extra_paths=("$@")
+    mkdir -p .vscode
+    local paths_json=""
+
+    for i in "${!extra_paths[@]}"; do
+        if [[ $i -eq 0 ]]; then
+            paths_json="\"${extra_paths[$i]}\""
+        else
+            paths_json="$paths_json,
+        \"${extra_paths[$i]}\""
+        fi
+    done
+    
+    local python_path=$(generate_python_interpreter_path)
+
+    if [[ -L "$python_path" ]]; then
+        python_path=$(readlink -f "$python_path" 2>/dev/null || realpath "$python_path" 2>/dev/null || echo "$python_path")
+    fi
+
+    cat > "$VSCODE_SETTINGS_FILE" << EOF
+{
+    "python.defaultInterpreterPath": "$python_path",
+    "python.analysis.extraPaths": [
+        $paths_json
+    ]
+}
+EOF
+
+    local num_paths="${#extra_paths[@]}"
+    echo "Updated $VSCODE_SETTINGS_FILE with $num_paths package paths"
+}
+
+echo "Generating VSCode import paths..."
+
+packages=($(extract_package_names "$REQUIREMENTS_FILE"))
+
+num_packages="${#packages[@]}"
+if [[ $num_packages -eq 0 ]]; then
+    echo "No packages found in $REQUIREMENTS_FILE"
+else
+    echo "Found $num_packages packages: ${packages[*]}"
+    extra_paths=($(generate_vscode_paths "${packages[@]}"))
+    update_vscode_settings "${extra_paths[@]}"
+    echo "VSCode import generator completed successfully!"
+fi
+
+echo "Setup complete!"

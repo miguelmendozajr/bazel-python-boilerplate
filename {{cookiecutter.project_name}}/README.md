@@ -1,27 +1,9 @@
-# Bazel Python Boilerplate
-
-This repository provides a ready-to-use setup for Python projects with:
-
-- **Bazel** for build automation and dependency management
-- **Gazelle** for automatic BUILD file generation
-
-## Quick Start
-
-### Prerequisites
-
-Install Bazelisk (manages Bazel versions automatically):
-
-```bash
-brew install bazelisk
-```
-
-### Running the project
-
+### Running a target
 ```bash
 bazel run src/package:main
 ```
 
-### Testing the project
+### Testing targets
 
 Run all tests (test files should have the `_test.py` suffix):
 
