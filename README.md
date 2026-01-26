@@ -92,23 +92,20 @@ bazel test //...
 
 ### Adding Dependencies
 
+Before adding a dependency, check if it's already in `requirements.txt` or `requirements.in`. If it exists, skip step 1.
+
 1. Add your dependency to `requirements.in`:
    ```
    numpy==2.4.1
    rich>=13.0.0
    ```
 
-2. Install dependencies:
-   ```bash
-   ./install
-   ```
-
-3. Import your dependency in source code:
+2. Import your dependency in source code:
    ```python
    import rich
    ```
 
-4. Update BUILD files:
+3. Update BUILD files:
    ```bash
    ./update
    ```

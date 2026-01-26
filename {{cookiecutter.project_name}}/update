@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
 set -e
 
+echo "Installing Dependencies..."
+bazel run //:reqs.update
+
+echo "Updating Manifest..."
+bazel run //:gazelle_python_manifest.update
+
+echo "Python dependencies installed!"
+
 echo "Running Gazelle to update BUILD files..."
 bazel run //:gazelle
+
+echo "Building target..."
+bazel build //...
 
 echo "Updating VS Code settings..."
 ./intellisense
