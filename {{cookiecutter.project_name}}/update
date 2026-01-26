@@ -4,4 +4,7 @@ set -e
 echo "Running Gazelle to update BUILD files..."
 bazel run //:gazelle
 
+echo "Updating VS Code settings..."
+./intellisense
+
 echo "BUILD files updated!"
