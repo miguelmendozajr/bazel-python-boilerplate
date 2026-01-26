@@ -1,6 +1,6 @@
 # Bazel Python Boilerplate
 
-Forget about Docker and Python Virtual Environments! This repository provides a ready-to-use setup for Python projects with:
+This repository provides a ready-to-use setup for Python projects with:
 
 - **Bazel** for build automation and dependency management
 - **Gazelle** for automatic BUILD file generation
